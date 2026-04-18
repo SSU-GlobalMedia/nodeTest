@@ -43,6 +43,13 @@ router.post("/save", function (req, res) {
   res.redirect("/list");
 });
 
+const fs = require('fs');
+const path = require('path');
+const dir = './public/image';
+if (!fs.existsSync(dir)) {
+  fs.mkdirSync(dir, { recursive: true });
+}
+
 let multer = require('multer');
 
 let storage = multer.diskStorage({
@@ -62,8 +69,14 @@ router.get('/upload', function (req, res) {
 
 let imagepath = '';
 router.post('/photo', upload.single('picture'), function (req, res) {
-  console.log(req.file.path);
-  imagepath = '\\' + req.file.path;
+  console.log('Original path:', req.file.path);
+  // Normalize the path so that it always uses forward slashes, regardless of the OS
+  let normalizedPath = req.file.path.replace(/\\/g, '/');
+  // Make sure it starts with a slash
+  if (!normalizedPath.startsWith('/')) {
+    normalizedPath = '/' + normalizedPath;
+  }
+  imagepath = normalizedPath;
 })
 
 module.exports = router;
